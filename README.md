@@ -1,6 +1,8 @@
-# urdf-loaders
+# urdf-js
 
 Fork of [gkjohnson/urdf-loaders](https://github.com/gkjohnson/urdf-loaders) with only the JS component.
+
+![Example](./docs/javascript-example.gif)
 
 # Dev
 

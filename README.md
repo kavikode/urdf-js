@@ -1,14 +1,4 @@
-# urdf-loaders
-
-URDF loading code in both [C# for Unity](./unity/Assets/URDF-Loader/) and [Javascript for THREE.js](./javascript/), as well as example [JPL ATHLETE](https://www-robotics.jpl.nasa.gov/systems/system.cfm?System=11) URDF files
-
-[Demo Here!](https://gkjohnson.github.io/urdf-loaders/javascript/example/index.bundle.html)
-
-![Example](./unity/Assets/docs/asset%20store/all-urdfs.png)
-
-### Flipped Models
-
-The `_flipped` variants of the URDF ATHLETE models invert the revolute joint axes to model ATHLETE in a configuration with the legs attached to the bottom of the chassis.
+# urdf-js
 
 # LICENSE
 

@@ -502,13 +502,15 @@ class URDFViewer extends HTMLElement {
                 urdf,
 
                 // onComplete
-                (model, errors) => (robot = model),
+                (model) => {
+                    robot = model;
+                },
 
                 // onProgress
-                (url, itemsLoaded, itemsTotal) => null,
+                () => null,
 
                 // onError
-                (url) => null,
+                () => null,
 
                 // options
                 {

@@ -1,6 +1,6 @@
 {
   "name": "urdf-js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "URDF Loader for THREE.js and webcomponent viewer",
   "main": "umd/URDFLoader.js",
   "module": "src/URDFLoader.js",
@@ -58,5 +58,7 @@
     "wc-loader": "^1.1.12",
     "webpack": "^3.5.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "three-mesh-bvh": "^0.1.4"
+  }
 }

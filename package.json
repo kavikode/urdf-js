@@ -1,6 +1,6 @@
 {
-  "name": "urdf-loader",
-  "version": "0.7.1",
+  "name": "urdf-js",
+  "version": "0.0.1",
   "description": "URDF Loader for THREE.js and webcomponent viewer",
   "main": "umd/URDFLoader.js",
   "module": "src/URDFLoader.js",
@@ -21,12 +21,12 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gkjohnson/urdf-loaders.git"
+    "url": "git+https:///rapyuta-robotics/urdf-js.git"
   },
   "bugs": {
-    "url": "https://github.com/gkjohnson/urdf-loaders/issues"
+    "url": "https://github.com//rapyuta-robotics/urdf-js/issues"
   },
-  "homepage": "https://github.com/gkjohnson/urdf-loaders#readme",
+  "homepage": "https://github.com//rapyuta-robotics/urdf-js#readme",
   "keywords": [
     "javascript",
     "threejs",

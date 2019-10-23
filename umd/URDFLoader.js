@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('three'), require('three/examples/jsm/loaders/STLLoader.js'), require('three/examples/jsm/loaders/ColladaLoader.js')) :
-    typeof define === 'function' && define.amd ? define(['three', 'three/examples/jsm/loaders/STLLoader.js', 'three/examples/jsm/loaders/ColladaLoader.js'], factory) :
-    (global.URDFLoader = factory(global.THREE,global.THREE,global.THREE));
-}(this, (function (THREE,STLLoader_js,ColladaLoader_js) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('three'), require('three/examples/jsm/loaders/STLLoader.js'), require('three/examples/jsm/loaders/ColladaLoader.js'), require('three-mesh-bvh')) :
+    typeof define === 'function' && define.amd ? define(['three', 'three/examples/jsm/loaders/STLLoader.js', 'three/examples/jsm/loaders/ColladaLoader.js', 'three-mesh-bvh'], factory) :
+    (global.URDFLoader = factory(global.THREE,global.THREE,global.THREE,global.THREE));
+}(this, (function (THREE,STLLoader_js,ColladaLoader_js,threeMeshBvh) { 'use strict';
 
     function URDFColliderClone(...args) {
 
@@ -722,6 +722,8 @@
                                         if (obj instanceof THREE.Mesh) {
 
                                             obj.material = material;
+                                            obj.raycast = threeMeshBvh.acceleratedRaycast;
+                                            obj.geometry.boundsTree = new threeMeshBvh.MeshBVH(obj.geometry);
 
                                         }
 
@@ -758,6 +760,9 @@
                             primitiveModel.geometry = new THREE.BoxBufferGeometry(1, 1, 1);
                             primitiveModel.material = material;
 
+                            primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
+                            primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+
                             const size = processTuple(n.children[0].getAttribute('size'));
 
                             linkObj.add(primitiveModel);
@@ -775,6 +780,9 @@
                             primitiveModel.geometry = new THREE.SphereBufferGeometry(1, 30, 30);
                             primitiveModel.material = material;
 
+                            primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
+                            primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+
                             const radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
                             primitiveModel.scale.set(radius, radius, radius);
 
@@ -791,6 +799,9 @@
                             primitiveModel = new THREE.Mesh();
                             primitiveModel.geometry = new THREE.CylinderBufferGeometry(1, 1, 1, 30);
                             primitiveModel.material = material;
+
+                            primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
+                            primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
 
                             const radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
                             const length = parseFloat(n.children[0].getAttribute('length')) || 0;

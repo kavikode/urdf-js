@@ -58,5 +58,7 @@
     "wc-loader": "^1.1.12",
     "webpack": "^3.5.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "three-mesh-bvh": "^0.1.4"
+  }
 }

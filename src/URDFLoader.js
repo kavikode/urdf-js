@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader.js';
 import { URDFRobot, URDFJoint, URDFLink, makeURDFCollider } from './URDFClasses.js';
+import { MeshBVH, acceleratedRaycast } from 'three-mesh-bvh';
 
 /*
 Reference coordinate frames for THREE.js and ROS.
@@ -460,6 +461,8 @@ class URDFLoader {
                                     if (obj instanceof THREE.Mesh) {
 
                                         obj.material = material;
+                                        obj.raycast = acceleratedRaycast;
+                                        obj.geometry.boundsTree = new MeshBVH(obj.geometry);
 
                                     }
 
@@ -496,6 +499,9 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.BoxBufferGeometry(1, 1, 1);
                         primitiveModel.material = material;
 
+                        primitiveModel.raycast = acceleratedRaycast;
+                        primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+
                         const size = processTuple(n.children[0].getAttribute('size'));
 
                         linkObj.add(primitiveModel);
@@ -513,6 +519,9 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.SphereBufferGeometry(1, 30, 30);
                         primitiveModel.material = material;
 
+                        primitiveModel.raycast = acceleratedRaycast;
+                        primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+
                         const radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
                         primitiveModel.scale.set(radius, radius, radius);
 
@@ -529,6 +538,9 @@ class URDFLoader {
                         primitiveModel = new THREE.Mesh();
                         primitiveModel.geometry = new THREE.CylinderBufferGeometry(1, 1, 1, 30);
                         primitiveModel.material = material;
+
+                        primitiveModel.raycast = acceleratedRaycast;
+                        primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
 
                         const radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
                         const length = parseFloat(n.children[0].getAttribute('length')) || 0;

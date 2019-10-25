@@ -1,4 +1,6 @@
 const path = require('path');
+import commonjs from 'rollup-plugin-commonjs';
+import babel from 'rollup-plugin-babel';
 
 const files = {
     URDFLoader: 'URDFLoader.js',
@@ -6,11 +8,7 @@ const files = {
     URDFManipulator: 'urdf-manipulator-element.js',
 };
 
-const isExternal = p => {
-
-    return !!(/^three/.test(p) || Object.values(files).filter(f => p.indexOf(f) !== -1).length);
-
-};
+const isExternal = p => !!/^three/.test(p);
 
 export default
 Object.entries(files).map(([name, file]) => {
@@ -23,6 +21,15 @@ Object.entries(files).map(([name, file]) => {
         input: inputPath,
         treeshake: false,
         external: p => isExternal(p),
+        plugins: [
+            babel({
+                runtimeHelpers: true,
+                exclude: 'node_modules/**',
+                presets: ['@babel/env'],
+                plugins: ['@babel/plugin-transform-runtime'],
+            }),
+            commonjs(),
+        ],
 
         output: {
 

@@ -23,10 +23,8 @@ Object.entries(files).map(([name, file]) => {
         external: p => isExternal(p),
         plugins: [
             babel({
-                runtimeHelpers: true,
                 exclude: 'node_modules/**',
                 presets: ['@babel/env'],
-                plugins: ['@babel/plugin-transform-runtime'],
             }),
             commonjs(),
         ],

@@ -585,7 +585,7 @@ class URDFLoader {
     // Default mesh loading function
     defaultMeshLoader(path, manager, done) {
 
-        if (/\.stl$/i.test(path)) {
+        if (/\.stl(?:\?|$)/i.test(path)) {
 
             const loader = new STLLoader(manager);
             loader.load(path, geom => {
@@ -593,7 +593,7 @@ class URDFLoader {
                 done(mesh);
             });
 
-        } else if (/\.dae$/i.test(path)) {
+        } else if (/\.dae(?:\?|$)/i.test(path)) {
 
             const loader = new ColladaLoader(manager);
             loader.load(path, dae => done(dae.scene));

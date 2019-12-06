@@ -2297,13 +2297,13 @@
     }, {
       key: "defaultMeshLoader",
       value: function defaultMeshLoader(path, manager, done) {
-        if (/\.stl$/i.test(path)) {
+        if (/\.stl(?:\?|$)/i.test(path)) {
           var loader = new STLLoader_js.STLLoader(manager);
           loader.load(path, function (geom) {
             var mesh = new THREE.Mesh(geom, new THREE.MeshPhongMaterial());
             done(mesh);
           });
-        } else if (/\.dae$/i.test(path)) {
+        } else if (/\.dae(?:\?|$)/i.test(path)) {
           var _loader = new ColladaLoader_js.ColladaLoader(manager);
 
           _loader.load(path, function (dae) {

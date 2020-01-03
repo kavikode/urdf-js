@@ -1876,9 +1876,12 @@
   /*#__PURE__*/
   function () {
     function URDFLoader(manager) {
+      var allowMeshBVH = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
       _classCallCheck(this, URDFLoader);
 
       this.manager = manager || THREE.DefaultLoadingManager;
+      this.allowMeshBVH = allowMeshBVH;
     }
     /* Public API */
     // urdf:    The path to the URDF within the package OR absolute
@@ -2006,6 +2009,7 @@
 
 
         function processUrdf(data) {
+          console.log(data);
           var parser = new DOMParser();
           var urdf = parser.parseFromString(data, 'text/xml');
 
@@ -2165,6 +2169,8 @@
 
 
         function processLinkElement(vn, linkObj) {
+          var _this2 = this;
+
           var materialMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
           var isCollisionNode = vn.nodeName.toLowerCase() === 'collision';
           var xyz = [0, 0, 0];
@@ -2211,8 +2217,11 @@
                     } else if (obj) {
                       if (obj instanceof THREE.Mesh) {
                         obj.material = material;
-                        obj.raycast = threeMeshBvh.acceleratedRaycast;
-                        obj.geometry.boundsTree = new threeMeshBvh.MeshBVH(obj.geometry);
+
+                        if (_this2.allowMeshBVH) {
+                          obj.raycast = threeMeshBvh.acceleratedRaycast;
+                          obj.geometry.boundsTree = new threeMeshBvh.MeshBVH(obj.geometry);
+                        }
                       }
 
                       linkObj.add(obj);
@@ -2237,8 +2246,12 @@
                 primitiveModel = new THREE.Mesh();
                 primitiveModel.geometry = new THREE.BoxBufferGeometry(1, 1, 1);
                 primitiveModel.material = material;
-                primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
-                primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+
+                if (_this2.allowMeshBVH) {
+                  primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
+                  primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+                }
+
                 var size = processTuple(n.children[0].getAttribute('size'));
                 linkObj.add(primitiveModel);
                 primitiveModel.scale.set(size[0], size[1], size[2]);
@@ -2250,8 +2263,12 @@
                 primitiveModel = new THREE.Mesh();
                 primitiveModel.geometry = new THREE.SphereBufferGeometry(1, 30, 30);
                 primitiveModel.material = material;
-                primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
-                primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+
+                if (_this2.allowMeshBVH) {
+                  primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
+                  primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+                }
+
                 var radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
                 primitiveModel.scale.set(radius, radius, radius);
                 linkObj.add(primitiveModel);
@@ -2263,8 +2280,11 @@
                 primitiveModel = new THREE.Mesh();
                 primitiveModel.geometry = new THREE.CylinderBufferGeometry(1, 1, 1, 30);
                 primitiveModel.material = material;
-                primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
-                primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+
+                if (_this2.allowMeshBVH) {
+                  primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
+                  primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
+                }
 
                 var _radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
 

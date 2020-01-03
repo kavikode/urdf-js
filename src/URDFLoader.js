@@ -173,6 +173,7 @@ class URDFLoader {
         const parseVisual = ('parseVisual' in options) ? options.parseVisual : true;
         const parseCollision = options.parseCollision || false;
         const manager = this.manager;
+        const allowMeshBVH = this.allowMeshBVH;
         const linkMap = {};
         const jointMap = {};
         const materialMap = {};
@@ -224,8 +225,6 @@ class URDFLoader {
 
         // Process the URDF text format
         function processUrdf(data) {
-
-            console.log(data);
 
             const parser = new DOMParser();
             const urdf = parser.parseFromString(data, 'text/xml');
@@ -464,7 +463,7 @@ class URDFLoader {
                                     if (obj instanceof THREE.Mesh) {
 
                                         obj.material = material;
-                                        if (this.allowMeshBVH) {
+                                        if (allowMeshBVH) {
                                             obj.raycast = acceleratedRaycast;
                                             obj.geometry.boundsTree = new MeshBVH(obj.geometry);
                                         }
@@ -503,7 +502,7 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.BoxBufferGeometry(1, 1, 1);
                         primitiveModel.material = material;
 
-                        if (this.allowMeshBVH) {
+                        if (allowMeshBVH) {
                             primitiveModel.raycast = acceleratedRaycast;
                             primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
                         }
@@ -525,7 +524,7 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.SphereBufferGeometry(1, 30, 30);
                         primitiveModel.material = material;
 
-                        if (this.allowMeshBVH) {
+                        if (allowMeshBVH) {
                             primitiveModel.raycast = acceleratedRaycast;
                             primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
                         }
@@ -547,7 +546,7 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.CylinderBufferGeometry(1, 1, 1, 30);
                         primitiveModel.material = material;
 
-                        if (this.allowMeshBVH) {
+                        if (allowMeshBVH) {
                             primitiveModel.raycast = acceleratedRaycast;
                             primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
                         }

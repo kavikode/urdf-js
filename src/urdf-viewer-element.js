@@ -250,7 +250,7 @@ class URDFViewer extends HTMLElement {
         const r = this.renderer;
         const w = this.clientWidth;
         const h = this.clientHeight;
-        const currsize = r.getSize();
+        const currsize = r.getSize(new THREE.Vector2());
 
         if (currsize.width !== w || currsize.height !== h) {
 

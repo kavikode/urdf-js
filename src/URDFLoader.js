@@ -57,9 +57,10 @@ function applyRotation(obj, rpy, additive = false) {
 export default
 class URDFLoader {
 
-    constructor(manager) {
+    constructor(manager, allowMeshBVH = false) {
 
         this.manager = manager || THREE.DefaultLoadingManager;
+        this.allowMeshBVH = allowMeshBVH;
 
     }
 
@@ -461,9 +462,10 @@ class URDFLoader {
                                     if (obj instanceof THREE.Mesh) {
 
                                         obj.material = material;
-                                        obj.raycast = acceleratedRaycast;
-                                        obj.geometry.boundsTree = new MeshBVH(obj.geometry);
-
+                                        if (this.allowMeshBVH) {
+                                            obj.raycast = acceleratedRaycast;
+                                            obj.geometry.boundsTree = new MeshBVH(obj.geometry);
+                                        }
                                     }
 
                                     linkObj.add(obj);
@@ -499,8 +501,10 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.BoxBufferGeometry(1, 1, 1);
                         primitiveModel.material = material;
 
-                        primitiveModel.raycast = acceleratedRaycast;
-                        primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+                        if (this.allowMeshBVH) {
+                            primitiveModel.raycast = acceleratedRaycast;
+                            primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+                        }
 
                         const size = processTuple(n.children[0].getAttribute('size'));
 
@@ -519,8 +523,10 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.SphereBufferGeometry(1, 30, 30);
                         primitiveModel.material = material;
 
-                        primitiveModel.raycast = acceleratedRaycast;
-                        primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+                        if (this.allowMeshBVH) {
+                            primitiveModel.raycast = acceleratedRaycast;
+                            primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+                        }
 
                         const radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
                         primitiveModel.scale.set(radius, radius, radius);
@@ -539,8 +545,10 @@ class URDFLoader {
                         primitiveModel.geometry = new THREE.CylinderBufferGeometry(1, 1, 1, 30);
                         primitiveModel.material = material;
 
-                        primitiveModel.raycast = acceleratedRaycast;
-                        primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+                        if (this.allowMeshBVH) {
+                            primitiveModel.raycast = acceleratedRaycast;
+                            primitiveModel.geometry.boundsTree = new MeshBVH(primitiveModel.geometry);
+                        }
 
                         const radius = parseFloat(n.children[0].getAttribute('radius')) || 0;
                         const length = parseFloat(n.children[0].getAttribute('length')) || 0;

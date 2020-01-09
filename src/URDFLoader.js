@@ -225,8 +225,6 @@ class URDFLoader {
         // Process the URDF text format
         function processUrdf(data) {
 
-            console.log(data);
-
             const parser = new DOMParser();
             const urdf = parser.parseFromString(data, 'text/xml');
             const children = [ ...urdf.children ];

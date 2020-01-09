@@ -2009,7 +2009,6 @@
 
 
         function processUrdf(data) {
-          console.log(data);
           var parser = new DOMParser();
           var urdf = parser.parseFromString(data, 'text/xml');
 

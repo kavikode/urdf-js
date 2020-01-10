@@ -61,6 +61,7 @@ class URDFLoader {
 
         this.manager = manager || THREE.DefaultLoadingManager;
         this.allowMeshBVH = allowMeshBVH;
+        this.retryMap = {};
 
     }
 
@@ -100,13 +101,17 @@ class URDFLoader {
 
         }
 
+        const that = this;
         manager.onError = function(url) {
 
             errors[url] = 'Error in loading resource';
 
             if (onError) {
 
-                onError(url);
+                onError({
+                    url,
+                    retry: that.retryMap[url],
+                });
 
             }
 
@@ -152,6 +157,7 @@ class URDFLoader {
             .then(data => {
 
                 model = this.parse(data, options);
+                window.model = model;
                 manager.itemEnd(urdfPath);
 
             })
@@ -223,16 +229,16 @@ class URDFLoader {
         }
 
         // Process the URDF text format
-        function processUrdf(data) {
+        const processUrdf = data => {
 
             const parser = new DOMParser();
             const urdf = parser.parseFromString(data, 'text/xml');
             const children = [ ...urdf.children ];
 
             const robotNode = children.filter(c => c.nodeName === 'robot').pop();
-            return processRobot(robotNode);
+            return processRobot.call(this, robotNode);
 
-        }
+        };
 
         // Process the <robot> node
         function processRobot(robot) {
@@ -250,7 +256,7 @@ class URDFLoader {
             materials.forEach(m => {
 
                 const name = m.getAttribute('name');
-                materialMap[name] = processMaterial(m);
+                materialMap[name] = processMaterial.call(this, m);
 
             });
 
@@ -259,7 +265,7 @@ class URDFLoader {
 
                 const name = l.getAttribute('name');
                 const isRoot = robot.querySelector(`child[link="${ name }"]`) === null;
-                linkMap[name] = processLink(l, isRoot ? obj : null);
+                linkMap[name] = processLink.call(this, l, isRoot ? obj : null);
 
             });
 
@@ -267,7 +273,7 @@ class URDFLoader {
             joints.forEach(j => {
 
                 const name = j.getAttribute('name');
-                jointMap[name] = processJoint(j);
+                jointMap[name] = processJoint.call(this, j);
 
             });
 
@@ -355,11 +361,11 @@ class URDFLoader {
 
             if (parseVisual) {
                 const visualNodes = children.filter(n => n.nodeName.toLowerCase() === 'visual');
-                visualNodes.forEach(vn => processLinkElement(vn, target, materialMap));
+                visualNodes.forEach(vn => processLinkElement.call(this, vn, target, materialMap));
             }
             if (parseCollision) {
                 const collisionNodes = children.filter(n => n.nodeName.toLowerCase() === 'collision');
-                collisionNodes.forEach(vn => processLinkElement(vn, target));
+                collisionNodes.forEach(vn => processLinkElement.call(this, vn, target));
             }
 
             return target;
@@ -392,7 +398,10 @@ class URDFLoader {
                     const loader = new THREE.TextureLoader(manager);
                     const filename = n.getAttribute('filename');
                     const filePath = resolvePath(filename);
-                    material.map = loader.load(filePath);
+                    const onError = () => {
+                        this.retryMap[filePath] = () => loader.load(filePath, () => null, () => null, onError);
+                    };
+                    material.map = loader.load(filePath, () => null, () => null, onError);
 
                 }
             });
@@ -424,7 +433,7 @@ class URDFLoader {
 
                 } else {
 
-                    material = processMaterial(materialNode);
+                    material = processMaterial.call(this, materialNode);
 
                 }
 
@@ -451,11 +460,12 @@ class URDFLoader {
                             const scaleAttr = n.children[0].getAttribute('scale');
                             if (scaleAttr) scale = processTuple(scaleAttr);
 
-                            loadMeshCb(filePath, manager, (obj, err) => {
+                            const cb = (obj, err) => {
 
                                 if (err) {
 
                                     console.error('URDFLoader: Error loading mesh.', err);
+                                    this.retryMap[filePath] = () => loadMeshCb(filePath, manager, cb);
 
                                 } else if (obj) {
 
@@ -491,7 +501,8 @@ class URDFLoader {
 
                                 }
 
-                            });
+                            };
+                            loadMeshCb(filePath, manager, cb);
 
                         }
 

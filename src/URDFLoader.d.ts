@@ -28,7 +28,7 @@ export default class URDFLoader {
         url: string,
         onLoad: (robot: URDFRobot, errors?: { [url: string]: string }) => void,
         onProgress: (url: string, itemsLoaded: number, itemsTotal: number) => void,
-        onError: (url: string) => void,
+        onError: (args: { url: string, retry: () => void }) => void,
         options?: URDFLoaderOptions
     ): void;
     public parse(content: string, options?: URDFLoaderOptions): URDFRobot;

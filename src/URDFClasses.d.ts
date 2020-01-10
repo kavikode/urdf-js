@@ -10,6 +10,9 @@ export class URDFLink extends Object3D {
 
     isURDFLink: true;
     urdfNode: Element | null;
+    show: () => void;
+    hide: () => void;
+    delete: () => void;
 
 }
 

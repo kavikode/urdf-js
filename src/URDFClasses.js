@@ -27,6 +27,20 @@ class URDFLink extends Object3D {
 
     }
 
+    show() {
+        this.visible = true;
+    }
+
+    hide() {
+        this.visible = false;
+    }
+
+    delete() {
+        this.children.map(child => {
+            this.remove(child);
+        });
+    }
+
     copy(source, recursive) {
 
         super.copy(source, recursive);

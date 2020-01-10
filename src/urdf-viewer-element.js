@@ -250,7 +250,8 @@ class URDFViewer extends HTMLElement {
         const r = this.renderer;
         const w = this.clientWidth;
         const h = this.clientHeight;
-        const currsize = r.getSize();
+        const currsize = new THREE.Vector2();
+        r.getSize(currsize);
 
         if (currsize.width !== w || currsize.height !== h) {
 
@@ -507,10 +508,14 @@ class URDFViewer extends HTMLElement {
                 },
 
                 // onProgress
-                () => null,
+                (url, loaded, total) => {
+                    console.log(`${ url }; ${ loaded }/${ total }`);
+                },
 
                 // onError
-                () => null,
+                (error) => {
+                    console.log(error);
+                },
 
                 // options
                 {

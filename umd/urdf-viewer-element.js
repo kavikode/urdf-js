@@ -1571,6 +1571,25 @@
     }
 
     _createClass(URDFLink, [{
+      key: "show",
+      value: function show() {
+        this.visible = true;
+      }
+    }, {
+      key: "hide",
+      value: function hide() {
+        this.visible = false;
+      }
+    }, {
+      key: "delete",
+      value: function _delete() {
+        var _this2 = this;
+
+        this.children.map(function (child) {
+          _this2.remove(child);
+        });
+      }
+    }, {
       key: "copy",
       value: function copy(source, recursive) {
         _get(_getPrototypeOf(URDFLink.prototype), "copy", this).call(this, source, recursive);
@@ -1624,7 +1643,7 @@
     function URDFJoint() {
       var _getPrototypeOf3;
 
-      var _this2;
+      var _this3;
 
       _classCallCheck(this, URDFJoint);
 
@@ -1632,21 +1651,21 @@
         args[_key3] = arguments[_key3];
       }
 
-      _this2 = _possibleConstructorReturn(this, (_getPrototypeOf3 = _getPrototypeOf(URDFJoint)).call.apply(_getPrototypeOf3, [this].concat(args)));
-      _this2.isURDFJoint = true;
-      _this2.type = 'URDFJoint';
-      _this2.urdfNode = null;
-      _this2.jointValue = null;
-      _this2.jointType = 'fixed';
-      _this2.axis = null;
-      _this2.limit = {
+      _this3 = _possibleConstructorReturn(this, (_getPrototypeOf3 = _getPrototypeOf(URDFJoint)).call.apply(_getPrototypeOf3, [this].concat(args)));
+      _this3.isURDFJoint = true;
+      _this3.type = 'URDFJoint';
+      _this3.urdfNode = null;
+      _this3.jointValue = null;
+      _this3.jointType = 'fixed';
+      _this3.axis = null;
+      _this3.limit = {
         lower: 0,
         upper: 0
       };
-      _this2.ignoreLimits = false;
-      _this2.origPosition = null;
-      _this2.origQuaternion = null;
-      return _this2;
+      _this3.ignoreLimits = false;
+      _this3.origPosition = null;
+      _this3.origQuaternion = null;
+      return _this3;
     }
     /* Overrides */
 
@@ -1756,7 +1775,7 @@
     function URDFRobot() {
       var _getPrototypeOf4;
 
-      var _this3;
+      var _this4;
 
       _classCallCheck(this, URDFRobot);
 
@@ -1764,20 +1783,20 @@
         args[_key5] = arguments[_key5];
       }
 
-      _this3 = _possibleConstructorReturn(this, (_getPrototypeOf4 = _getPrototypeOf(URDFRobot)).call.apply(_getPrototypeOf4, [this].concat(args)));
-      _this3.isURDFRobot = true;
-      _this3.urdfNode = null;
-      _this3.urdfRobotNode = null;
-      _this3.robotName = null;
-      _this3.links = null;
-      _this3.joints = null;
-      return _this3;
+      _this4 = _possibleConstructorReturn(this, (_getPrototypeOf4 = _getPrototypeOf(URDFRobot)).call.apply(_getPrototypeOf4, [this].concat(args)));
+      _this4.isURDFRobot = true;
+      _this4.urdfNode = null;
+      _this4.urdfRobotNode = null;
+      _this4.robotName = null;
+      _this4.links = null;
+      _this4.joints = null;
+      return _this4;
     }
 
     _createClass(URDFRobot, [{
       key: "copy",
       value: function copy(source, recursive) {
-        var _this4 = this;
+        var _this5 = this;
 
         _get(_getPrototypeOf(URDFRobot.prototype), "copy", this).call(this, source, recursive);
 
@@ -1787,11 +1806,11 @@
         this.joints = {};
         this.traverse(function (c) {
           if (c.isURDFJoint && c.name in source.joints) {
-            _this4.joints[c.name] = c;
+            _this5.joints[c.name] = c;
           }
 
           if (c.isURDFLink && c.name in source.links) {
-            _this4.links[c.name] = c;
+            _this5.links[c.name] = c;
           }
         });
         return this;
@@ -1882,6 +1901,7 @@
 
       this.manager = manager || THREE.DefaultLoadingManager;
       this.allowMeshBVH = allowMeshBVH;
+      this.retryMap = {};
     }
     /* Public API */
     // urdf:    The path to the URDF within the package OR absolute
@@ -1920,11 +1940,16 @@
           managerOnLoadDefault = manager.onLoad.bind(manager);
         }
 
+        var that = this;
+
         manager.onError = function (url) {
           errors[url] = 'Error in loading resource';
 
           if (onError) {
-            onError(url);
+            onError({
+              url: url,
+              retry: that.retryMap[url]
+            });
           }
 
           managerOnErrorDefault(url);
@@ -1955,6 +1980,7 @@
           return res.text();
         }).then(function (data) {
           model = _this.parse(data, options);
+          window.model = model;
           manager.itemEnd(urdfPath);
         })["catch"](function (e) {
           console.error('URDFLoader: Error parsing file.', e);
@@ -1965,6 +1991,8 @@
     }, {
       key: "parse",
       value: function parse(content) {
+        var _this2 = this;
+
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
         var packages = options.packages || '';
         var loadMeshCb = options.loadMeshCb || this.defaultMeshLoader.bind(this);
@@ -2008,7 +2036,7 @@
         } // Process the URDF text format
 
 
-        function processUrdf(data) {
+        var processUrdf = function processUrdf(data) {
           var parser = new DOMParser();
           var urdf = parser.parseFromString(data, 'text/xml');
 
@@ -2017,11 +2045,13 @@
           var robotNode = children.filter(function (c) {
             return c.nodeName === 'robot';
           }).pop();
-          return processRobot(robotNode);
-        } // Process the <robot> node
+          return processRobot.call(_this2, robotNode);
+        }; // Process the <robot> node
 
 
         function processRobot(robot) {
+          var _this3 = this;
+
           var robotNodes = _toConsumableArray(robot.children);
 
           var links = robotNodes.filter(function (c) {
@@ -2039,18 +2069,18 @@
 
           materials.forEach(function (m) {
             var name = m.getAttribute('name');
-            materialMap[name] = processMaterial(m);
+            materialMap[name] = processMaterial.call(_this3, m);
           }); // Create the <link> map
 
           links.forEach(function (l) {
             var name = l.getAttribute('name');
             var isRoot = robot.querySelector("child[link=\"".concat(name, "\"]")) === null;
-            linkMap[name] = processLink(l, isRoot ? obj : null);
+            linkMap[name] = processLink.call(_this3, l, isRoot ? obj : null);
           }); // Create the <joint> map
 
           joints.forEach(function (j) {
             var name = j.getAttribute('name');
-            jointMap[name] = processJoint(j);
+            jointMap[name] = processJoint.call(_this3, j);
           });
           obj.joints = jointMap;
           obj.links = linkMap;
@@ -2109,6 +2139,8 @@
 
 
         function processLink(link) {
+          var _this4 = this;
+
           var target = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
           if (target === null) {
@@ -2125,7 +2157,7 @@
               return n.nodeName.toLowerCase() === 'visual';
             });
             visualNodes.forEach(function (vn) {
-              return processLinkElement(vn, target, materialMap);
+              return processLinkElement.call(_this4, vn, target, materialMap);
             });
           }
 
@@ -2134,7 +2166,7 @@
               return n.nodeName.toLowerCase() === 'collision';
             });
             collisionNodes.forEach(function (vn) {
-              return processLinkElement(vn, target);
+              return processLinkElement.call(_this4, vn, target);
             });
           }
 
@@ -2142,6 +2174,8 @@
         }
 
         function processMaterial(node) {
+          var _this5 = this;
+
           var matNodes = _toConsumableArray(node.children);
 
           var material = new THREE.MeshPhongMaterial();
@@ -2160,7 +2194,22 @@
               var loader = new THREE.TextureLoader(manager);
               var filename = n.getAttribute('filename');
               var filePath = resolvePath(filename);
-              material.map = loader.load(filePath);
+
+              var onError = function onError() {
+                _this5.retryMap[filePath] = function () {
+                  return loader.load(filePath, function () {
+                    return null;
+                  }, function () {
+                    return null;
+                  }, onError);
+                };
+              };
+
+              material.map = loader.load(filePath, function () {
+                return null;
+              }, function () {
+                return null;
+              }, onError);
             }
           });
           return material;
@@ -2168,7 +2217,7 @@
 
 
         function processLinkElement(vn, linkObj) {
-          var _this2 = this;
+          var _this6 = this;
 
           var materialMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
           var isCollisionNode = vn.nodeName.toLowerCase() === 'collision';
@@ -2191,7 +2240,7 @@
             if (name && name in materialMap) {
               material = materialMap[name];
             } else {
-              material = processMaterial(materialNode);
+              material = processMaterial.call(this, materialNode);
             }
           } else {
             material = new THREE.MeshPhongMaterial();
@@ -2210,14 +2259,19 @@
                 if (filePath !== null) {
                   var scaleAttr = n.children[0].getAttribute('scale');
                   if (scaleAttr) scale = processTuple(scaleAttr);
-                  loadMeshCb(filePath, manager, function (obj, err) {
+
+                  var cb = function cb(obj, err) {
                     if (err) {
                       console.error('URDFLoader: Error loading mesh.', err);
+
+                      _this6.retryMap[filePath] = function () {
+                        return loadMeshCb(filePath, manager, cb);
+                      };
                     } else if (obj) {
                       if (obj instanceof THREE.Mesh) {
                         obj.material = material;
 
-                        if (_this2.allowMeshBVH) {
+                        if (_this6.allowMeshBVH) {
                           obj.raycast = threeMeshBvh.acceleratedRaycast;
                           obj.geometry.boundsTree = new threeMeshBvh.MeshBVH(obj.geometry);
                         }
@@ -2239,14 +2293,16 @@
                         makeURDFCollider(obj);
                       }
                     }
-                  });
+                  };
+
+                  loadMeshCb(filePath, manager, cb);
                 }
               } else if (geoType === 'box') {
                 primitiveModel = new THREE.Mesh();
                 primitiveModel.geometry = new THREE.BoxBufferGeometry(1, 1, 1);
                 primitiveModel.material = material;
 
-                if (_this2.allowMeshBVH) {
+                if (_this6.allowMeshBVH) {
                   primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
                   primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
                 }
@@ -2263,7 +2319,7 @@
                 primitiveModel.geometry = new THREE.SphereBufferGeometry(1, 30, 30);
                 primitiveModel.material = material;
 
-                if (_this2.allowMeshBVH) {
+                if (_this6.allowMeshBVH) {
                   primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
                   primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
                 }
@@ -2280,7 +2336,7 @@
                 primitiveModel.geometry = new THREE.CylinderBufferGeometry(1, 1, 1, 30);
                 primitiveModel.material = material;
 
-                if (_this2.allowMeshBVH) {
+                if (_this6.allowMeshBVH) {
                   primitiveModel.raycast = threeMeshBvh.acceleratedRaycast;
                   primitiveModel.geometry.boundsTree = new threeMeshBvh.MeshBVH(primitiveModel.geometry);
                 }
@@ -2616,7 +2672,8 @@
         var r = this.renderer;
         var w = this.clientWidth;
         var h = this.clientHeight;
-        var currsize = r.getSize();
+        var currsize = new THREE.Vector2();
+        r.getSize(currsize);
 
         if (currsize.width !== w || currsize.height !== h) {
           this.recenter();
@@ -2846,11 +2903,11 @@
           function (model) {
             robot = model;
           }, // onProgress
-          function () {
-            return null;
+          function (url, loaded, total) {
+            console.log("".concat(url, "; ").concat(loaded, "/").concat(total));
           }, // onError
-          function () {
-            return null;
+          function (error) {
+            console.log(error);
           }, // options
           {
             packages: pkg,

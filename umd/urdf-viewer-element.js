@@ -1585,6 +1585,7 @@
       value: function _delete() {
         var _this2 = this;
 
+        this.parent.remove(this);
         this.children.map(function (child) {
           _this2.remove(child);
         });

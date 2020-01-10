@@ -36,6 +36,7 @@ class URDFLink extends Object3D {
     }
 
     delete() {
+        this.parent.remove(this);
         this.children.map(child => {
             this.remove(child);
         });

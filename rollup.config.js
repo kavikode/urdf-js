@@ -4,6 +4,7 @@ import babel from 'rollup-plugin-babel';
 
 const files = {
     URDFLoader: 'URDFLoader.js',
+    URDFClasses: 'URDFClasses.js',
     URDFViewer: 'urdf-viewer-element.js',
     URDFManipulator: 'urdf-manipulator-element.js',
 };
